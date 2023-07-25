@@ -1,0 +1,34 @@
+{%extends 'base.html'%}
+
+{%block title%}Upload Dataset{%endblock%}
+
+{%block content%}
+<h1 align="center">Describe your Feature</h1>
+<p>Hi {{user.first_name}},</p>
+<br>
+<form method="post" enctype="multipart/form-data">
+    <div>
+        <p>File Name: {{filename}}</p>
+    </div>
+    <div>
+        {{data | safe}}
+    </div>
+    <br>
+    <div>
+        <label for="feature_name">Feature Name</label>
+        <input type="text" id="feature_name" name="feature_name" placeholder="Enter feature name" required>
+    </div>
+    <br>
+    <div>
+        <label for="feature_info">Feature Info</label>
+        <textarea name="feature_info" id="feature_info" placeholder="Enter Feature Info" required></textarea>
+    </div>
+    <br>
+    <div>
+        <label for="tags">Tags</label>
+        <textarea name="tags" id="tags" placeholder="Enter tags for discoverability" required></textarea>
+    </div>
+    <br>
+    <button type="submit">Submit</button>
+</form>
+{%endblock%}

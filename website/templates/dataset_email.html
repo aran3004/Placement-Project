@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/email.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1 align="center">My Platform</h1>
+    <h3>Dataset Uploaded Successfully</h3>
+    <p>Here is your dataset entry:</p>
+    <ul>
+        <li>Filename: {{filename}}</li>
+        <li>Info: {{dataset.info}}</li>
+        <li>Model Type: {{dataset.model_type.capitalize()}}</li>
+        <li>Target: {{dataset.target}}</li>
+        {% if dataset.model_type == 'classification'%}
+            <li>Accuracy: {{dataset.result}}</li>
+        {%elif dataset.model_type == 'regression'%}
+            <li>RMSE: {{dataset.accuracy}}</li>
+        {%endif%}
+        <li>Public Bid: {{dataset.public_bid}}</li>
+        <li>Tags: {{dataset.tags}}</li>
+        <li>Date Uploaded: {{dataset.date}}</li>
+    </ul>
+    <br>
+    <!-- <input type="button" value="Click to Run Analysis" onclick="location.href='{{link}}';"> -->
+    <div style="margin:auto; text-align: center;">
+        <a href="{{link}}" align="center" appearance="button" 
+        style="color: white;
+        background-color: blue;
+        margin: 10px;
+        padding: 10px;
+        border-radius: 15px;
+        position: center;
+        text-decoration: none;">Run Search for Potential Features</a>
+    </div>
+    
+    <!-- <form action="{{link}}">
+        <input type="submit" value="Click to Run Analysis">
+    </form>
+    <button onclick="location.href='{{link}}'" type="button">Click to Run Analysis</button> -->
+</body>
+</html>

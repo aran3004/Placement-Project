@@ -1,0 +1,16 @@
+{%extends 'base.html'%}
+
+{%block title%}Upload Dataset{%endblock%}
+
+{%block content%}
+<h1 align="center">Upload your Feature</h1>
+<br>
+<form method="post" enctype="multipart/form-data">
+    <div align="center">
+        <label for="file">Upload Feature:</label>
+        <input type="file" id="file" name="file">
+    </div>
+    <br>
+    <div align="center"><button type="submit">Continue</button></div>
+</form>
+{%endblock%}

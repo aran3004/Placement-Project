@@ -1,0 +1,10 @@
+a{
+    /* display: block; */
+    color: white;
+    background-color: blue;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 15px;
+    position: center;
+    text-decoration: none;
+}

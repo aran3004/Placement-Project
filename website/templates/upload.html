@@ -1,0 +1,17 @@
+{%extends 'base.html'%}
+
+{%block title%}Upload{%endblock%}
+
+{%block content%}
+<br>
+<div>
+    <div align="center">
+        <a href="{{url_for('uploads.upload_dataset')}}">Upload Dataset</a>
+    </div>
+    <br>
+    <div align="center">
+        <a href="{{url_for('uploads.upload_feature')}}">Upload Feature</a>
+    </div>
+</div>
+
+{%endblock%}

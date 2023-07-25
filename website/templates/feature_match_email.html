@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/email.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1 align="center">My Platform</h1>
+
+    <h2>We've found Potential Matches for your Datasets</h2>
+    {%for key,value in results.items()%}
+        <h3>{{key}}</h3>
+        {%if value|length == 0%}
+            <p>No available features for this dataset. Try adding more tags or adjusting the description. Visit your profile to do so.</p>
+        {%else%}
+            {%for a,b in value.items()%}
+                <p>{{a}}</p>
+                <ul>
+                    <li>Description: {{b['Description']}}</li>
+                    <li>Similarity: {{b['Similarity']}}</li>
+                </ul>
+            {%endfor%}
+        {%endif%}
+    {%endfor%}
+        
+    <br>
+</body>
+</html>
