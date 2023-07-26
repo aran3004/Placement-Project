@@ -25,19 +25,20 @@ def search():
         if dataset.user_id == current_user.id:
             dataset_descriptions[dataset.id] = dataset.task
 
+    # Find all features that are uploaded by everyone except the current user
     features = Features.query.all()
     feature_descriptions = {}
     for feature in features:
         if feature.user_id != current_user.id:
             feature_descriptions[feature.id] = feature.info
 
-    # print(dataset_descriptions)
-    # print(feature_descriptions)
+    # For cases of no uploaded features or ML tasks
     if len(feature_descriptions) == 0:
         return 'There are currently no features available'
     elif len(dataset_descriptions) == 0:
         return 'Please upload a dataset and task to run the search algorithm'
     else:
+        # Preprocessing the descriptions
         dataset_descriptions = preprocess(dataset_descriptions)
         feature_descriptions = preprocess(feature_descriptions)
 
@@ -62,7 +63,6 @@ def search():
             ranked_similarities = [similarities[idx] for idx in ranked_indices]
 
             print(f"Dataset ID: {dataset_id}")
-            # print(f"Dataset description: {dataset_description}")
             print("Ranked features:")
             results[f"Dataset ID: {dataset_id}"] = {}
             for feature_id, similarity in zip(ranked_feature_ids, ranked_similarities):
