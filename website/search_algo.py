@@ -18,6 +18,7 @@ nlp = spacy.load("en_core_web_md")
 
 @search_algo.route('/search')
 def search():
+    # Find all tasks current user has uploaded
     datasets = Datasets.query.all()
     dataset_descriptions = {}
     for dataset in datasets:
