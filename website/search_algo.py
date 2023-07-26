@@ -7,6 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 import string
+import pandas as pd
 
 search_algo = Blueprint('search_algo', __name__)
 
@@ -62,7 +63,8 @@ def search():
                                   for idx in ranked_indices]
             ranked_similarities = [similarities[idx] for idx in ranked_indices]
 
-            print(f"Dataset ID: {dataset_id}")
+            print(
+                f"Dataset ID: {dataset_id}, Description: {dataset_description}")
             print("Ranked features:")
             results[f"Dataset ID: {dataset_id}"] = {}
             for feature_id, similarity in zip(ranked_feature_ids, ranked_similarities):
@@ -72,6 +74,20 @@ def search():
                         'Description': feature_description, 'Similarity': str(similarity)}
                     print(
                         f"- Feature ID: {feature_id}, Description: {feature_description}, Similarity: {similarity}")
+
+                    dataset_file_path, model_type = get_dataset_by_id(
+                        dataset_id)
+                    feature_file_path = get_feature_by_id(feature_id)
+
+                    dataset_df = pd.read_csv(dataset_file_path)
+                    feature_df = pd.read_csv(feature_file_path)
+                    dataset_df = preprocess_df(dataset_df)
+                    feature_df = preprocess_df(feature_df)
+                    # print(dataset_df.head())
+                    # print(feature_df.head())
+                    matching_columns = get_matching_columns(
+                        dataset_df, feature_df)
+                    print(f'{matching_columns}')
 
             if len(results[f"Dataset ID: {dataset_id}"]) == 0:
                 print("No available features for this dataset. Try adding more tags or adjusting the description. Visit your profile to do so.")
@@ -84,7 +100,6 @@ def search():
 
 
 # Preprocess descriptions (cleaning and tokenization)
-
 def preprocess(descriptions):
     processed_descriptions = {}
     for id, description in descriptions.items():
@@ -101,3 +116,58 @@ def preprocess(descriptions):
         processed_description = ' '.join(processed_tokens)
         processed_descriptions[id] = processed_description
     return processed_descriptions
+
+
+def preprocess_df(df):
+    string_columns = df.select_dtypes(include=['object']).columns
+    df[string_columns] = df[string_columns].apply(lambda x: x.str.lower())
+    return df
+
+# Find columns that have matching items, even if the feature label is different
+
+
+def get_matching_columns(df1, df2):
+    cols1 = df1.columns
+    cols2 = df2.columns
+
+    matching_columns = {}
+
+    for col1 in cols1:
+        for col2 in cols2:
+            unique_features_df1 = set(df1[col1].unique())
+            unique_features_df2 = set(df2[col2].unique())
+
+            matching_features = unique_features_df1.intersection(
+                unique_features_df2)
+            matching_features_df = df1[df1[col1].isin(matching_features)]
+            # How much of original dataset can be matched up to
+            matching_rate = (len(matching_features_df) / len(df1)) * 100
+
+            # Matching rate above 70%
+            if matching_rate > 10:
+                matching_columns[(col1, col2)] = matching_rate
+
+    return matching_columns
+
+
+def get_dataset_by_id(dataset_id):
+    dataset = Datasets.query.get(dataset_id)
+
+    if dataset is None:
+        return 'error: Dataset not found', 404
+
+    file_path = dataset.file_path
+    model_type = dataset.model_type
+
+    return file_path, model_type
+
+
+def get_feature_by_id(feature_id):
+    feature = Features.query.get(feature_id)
+
+    if feature is None:
+        return 'error: Feature not found', 404
+
+    file_path = feature.file_path
+
+    return file_path
