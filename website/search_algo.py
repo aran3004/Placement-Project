@@ -1,4 +1,4 @@
-from flask import Blueprint, session, redirect, url_for
+from flask import Blueprint, session, redirect, url_for, render_template
 from . import db
 from flask_login import current_user
 from .models import Datasets, Features
@@ -67,13 +67,9 @@ def search():
                 f"Dataset ID: {dataset_id}, Description: {dataset_description}")
             print("Ranked features:")
             results[f"Dataset ID: {dataset_id}"] = {}
+
             for feature_id, similarity in zip(ranked_feature_ids, ranked_similarities):
                 if similarity > 0.6:
-                    feature_description = feature_descriptions[feature_id]
-                    results[f"Dataset ID: {dataset_id}"][f'Feature_ID: {feature_id}'] = {
-                        'Description': feature_description, 'Similarity': str(similarity)}
-                    print(
-                        f"- Feature ID: {feature_id}, Description: {feature_description}, Similarity: {similarity}")
 
                     dataset_file_path, model_type = get_dataset_by_id(
                         dataset_id)
@@ -83,11 +79,21 @@ def search():
                     feature_df = pd.read_csv(feature_file_path)
                     dataset_df = preprocess_df(dataset_df)
                     feature_df = preprocess_df(feature_df)
-                    # print(dataset_df.head())
-                    # print(feature_df.head())
+
                     matching_columns = get_matching_columns(
                         dataset_df, feature_df)
-                    print(f'{matching_columns}')
+
+                    for a, b in enumerate(matching_columns):
+                        print(b[0], b[1], matching_columns[b])
+                    # print(a,b for a,b in enumerate(matching_columns))
+                    # columns, matching_score = matching_columns.items()
+                    # column1, column2 = columns
+
+                    feature_description = feature_descriptions[feature_id]
+                    results[f"Dataset ID: {dataset_id}"][f'Feature_ID: {feature_id}'] = {
+                        'Description': feature_description, 'Similarity': str(similarity), 'Matching Column 1': b[0], 'Matching Column 2': b[1], 'Matching Score': matching_columns[b]}
+                    print(
+                        f"- Feature ID: {feature_id}, Description: {feature_description}, Similarity: {similarity}, Matching Column 1: {b[0]}, Matching Column 2: {b[1]}, Matching Score: {matching_columns[b]}")
 
             if len(results[f"Dataset ID: {dataset_id}"]) == 0:
                 print("No available features for this dataset. Try adding more tags or adjusting the description. Visit your profile to do so.")
@@ -99,7 +105,47 @@ def search():
         return redirect(url_for('email.feature_match'))
 
 
+@search_algo.route('/match')
+def match():
+    task_feature_groups = datasets_and_feature_groups()
+
+    # Seeing datasets and the other features
+    print(task_feature_groups)
+    for task in task_feature_groups:
+        print("--------")
+        print(task)
+        print(task.dataset_name)
+        print(task.task)
+        for feature in task_feature_groups[task]:
+            print(
+                f"User ID:{feature.user_id} || {feature.feature_name} || {feature.id} || {feature.file_path} || {feature.info}")
+        print("--------")
+
+    # Need to remove features that are not suitbale based on descritpion and info
+    # Store these scores in an array and remove features from array if they are too low in similarity
+
+    # Need to get the merge ratings and put in an array
+    # At some point i will make a table on the profile page that allows the user to test features for their task and compare rating
+    return render_template('profile.html', user=current_user)
+
 # Preprocess descriptions (cleaning and tokenization)
+
+
+def preprocess_description(description):
+    # Remove punctuation
+    description = description.translate(
+        str.maketrans('', '', string.punctuation))
+    # Lowercasing
+    description = description.lower()
+    # Tokenization and stopwords removal
+    tokens = nlp(description)
+    processed_tokens = [
+        token.text for token in tokens if token.text not in STOP_WORDS]
+    # Join the processed tokens back into a string
+    processed_description = ' '.join(processed_tokens)
+    return processed_description
+
+
 def preprocess(descriptions):
     processed_descriptions = {}
     for id, description in descriptions.items():
@@ -171,3 +217,29 @@ def get_feature_by_id(feature_id):
     file_path = feature.file_path
 
     return file_path
+
+
+def datasets_and_feature_groups():
+    # Find all tasks uploaded
+    datasets = Datasets.query.all()
+
+    # Find all features that are uploaded
+    features = Features.query.all()
+
+    # Create a dictionary to store the matched datasets and features
+    task_feature_groups = {}
+
+    # Loop through each dataset and find the matching features based on user_id
+    for dataset in datasets:
+        dataset.task = preprocess_description(dataset.task)
+        # Filter features that do not have the same user_id as the dataset
+        matching_features = []
+        for feature in features:
+            if feature.user_id != dataset.user_id:
+                feature.info = preprocess_description(feature.info)
+                matching_features.append(feature)
+
+        # Add the matched features to the dataset in the dictionary
+        task_feature_groups[dataset] = matching_features
+
+    return task_feature_groups
