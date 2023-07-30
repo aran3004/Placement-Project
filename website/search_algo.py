@@ -8,6 +8,7 @@ import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 import string
 import pandas as pd
+import numpy as np
 
 search_algo = Blueprint('search_algo', __name__)
 
@@ -124,6 +125,64 @@ def match():
     # Need to remove features that are not suitbale based on descritpion and info
     # Store these scores in an array and remove features from array if they are too low in similarity
 
+    print(task_feature_groups)
+
+    # Dictionary to store the matched pairs
+    matched_pairs = {}
+
+    # Compute word embeddings for the descriptions
+    task_embeddings = {}  # Store task embeddings outside the loop
+    feature_embeddings = {}  # Store feature embeddings outside the loop
+
+    # Compute word embeddings for the descriptions
+    for task in task_feature_groups:
+        task_embeddings[task] = nlp(task.task).vector
+        for feature in task_feature_groups[task]:
+            feature_embeddings[feature.feature_name] = nlp(feature.info).vector
+
+    # Loop through each task
+    for task, task_embedding in task_embeddings.items():
+        # Initialize a list to store the similarity scores for this task
+        similarity_scores = []
+
+        # Loop through each feature and its embedding
+        for feature, feature_embedding in feature_embeddings.items():
+            # Calculate cosine similarity between the task and feature embeddings
+            similarity_score = cosine_similarity(
+                [task_embedding], [feature_embedding])[0][0]
+
+            # Add the similarity score to the list
+            similarity_scores.append((feature, similarity_score))
+
+        # Sort the similarity scores in descending order
+        similarity_scores.sort(key=lambda x: x[1], reverse=True)
+
+        # Set a similarity threshold (adjust this value based on your needs)
+        similarity_threshold = 0.4
+
+        # Find features with similarity scores above the threshold
+        matched_features = []
+        for feature, score in similarity_scores:
+            if score >= similarity_threshold:
+                for feature_obj in task_feature_groups[task]:
+                    if feature_obj.feature_name == feature:
+                        matched_features.append(feature_obj)
+
+        # Store the matched features in the dictionary
+        matched_pairs[task] = matched_features
+
+    # Print the matched pairs
+    for task, matched_features in matched_pairs.items():
+        print(f"Task: {task}")
+        task_df = pd.read_csv(task.file_path)
+        for feature_obj in matched_features:
+            print(
+                f"Matched Feature: {feature_obj}, Feature Name: {feature_obj.feature_name}, User ID: {feature_obj.user_id}")
+            feature_df = pd.read_csv(feature_obj.file_path)
+            print(task_df.head())
+            print(feature_df.head())
+            print(get_matching_columns(task_df, feature_df))
+
     # Need to get the merge ratings and put in an array
     # At some point i will make a table on the profile page that allows the user to test features for their task and compare rating
     return render_template('profile.html', user=current_user)
@@ -173,6 +232,8 @@ def preprocess_df(df):
 
 
 def get_matching_columns(df1, df2):
+    df1 = preprocess_df(df1)
+    df2 = preprocess_df(df2)
     cols1 = df1.columns
     cols2 = df2.columns
 
@@ -189,7 +250,7 @@ def get_matching_columns(df1, df2):
             # How much of original dataset can be matched up to
             matching_rate = (len(matching_features_df) / len(df1)) * 100
 
-            # Matching rate above 70%
+            # Matching rate above 10%
             if matching_rate > 10:
                 matching_columns[(col1, col2)] = matching_rate
 
