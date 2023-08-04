@@ -9,6 +9,7 @@ from spacy.lang.en.stop_words import STOP_WORDS
 import string
 import pandas as pd
 import numpy as np
+from .regression import *
 
 search_algo = Blueprint('search_algo', __name__)
 
@@ -78,8 +79,8 @@ def search():
 
                     dataset_df = pd.read_csv(dataset_file_path)
                     feature_df = pd.read_csv(feature_file_path)
-                    dataset_df = preprocess_df(dataset_df)
-                    feature_df = preprocess_df(feature_df)
+                    dataset_df = preprocess_df_strings(dataset_df)
+                    feature_df = preprocess_df_strings(feature_df)
 
                     matching_columns = get_matching_columns(
                         dataset_df, feature_df)
@@ -111,16 +112,16 @@ def match():
     task_feature_groups = datasets_and_feature_groups()
 
     # Seeing datasets and the other features
-    print(task_feature_groups)
-    for task in task_feature_groups:
-        print("--------")
-        print(task)
-        print(task.dataset_name)
-        print(task.task)
-        for feature in task_feature_groups[task]:
-            print(
-                f"User ID:{feature.user_id} || {feature.feature_name} || {feature.id} || {feature.file_path} || {feature.info}")
-        print("--------")
+    # print(task_feature_groups)
+    # for task in task_feature_groups:
+    #     print("--------")
+    #     print(task)
+    #     print(task.dataset_name)
+    #     print(task.task)
+    #     for feature in task_feature_groups[task]:
+    #         print(
+    #             f"User ID:{feature.user_id} || {feature.feature_name} || {feature.id} || {feature.file_path} || {feature.info}")
+    #     print("--------")
 
     # Need to remove features that are not suitbale based on descritpion and info
     # Store these scores in an array and remove features from array if they are too low in similarity
@@ -175,13 +176,52 @@ def match():
     for task, matched_features in matched_pairs.items():
         print(f"Task: {task}")
         task_df = pd.read_csv(task.file_path)
+        merged_df = pd.read_csv(task.file_path)
+        print(task_df.columns)
+        features_for_analysis = []
         for feature_obj in matched_features:
             print(
                 f"Matched Feature: {feature_obj}, Feature Name: {feature_obj.feature_name}, User ID: {feature_obj.user_id}")
             feature_df = pd.read_csv(feature_obj.file_path)
-            print(task_df.head())
-            print(feature_df.head())
-            print(get_matching_columns(task_df, feature_df))
+            matches = get_matching_columns(task_df, feature_df)
+            if len(matches) == 0:
+                print('This features is not a match for this task')
+            elif list(matches.values())[0] < 60:
+                print(
+                    "This feature is a match, but doesn't cover enough of the original dataset")
+            else:
+                features_for_analysis.append(feature_obj)
+                column1, column2 = list(matches.keys())[
+                    0][0], list(matches.keys())[0][1]
+                print(
+                    f'Matching Column 1 is: {column1}, Matching Column 2 is: {column2} ')
+                print(f'Columns in Feature: {feature_df.columns}')
+                print(f'Matching Rate: {list(matches.values())[0]}')
+                merged_df = pd.merge(merged_df, feature_df,
+                                     left_on=column1, right_on=column2)
+                if column1 != column2:
+                    merged_df.drop(column2, inplace=True, axis=1)
+            print('----------------------')
+
+        if task.model_type != 'regression':
+            print("Models other than regression are still yet to be coded")
+
+        if len(features_for_analysis) > 0:
+            print(merged_df.head())
+            print(merged_df.columns)
+            if task.model_type == 'regression':
+                original_dataset_result = hist_grad(task_df, task.target)
+                print(
+                    f'Result from original task alone: {original_dataset_result}')
+                merged_dataset_result = hist_grad(merged_df, task.target)
+
+                print(
+                    f'Dataset Retained: {round(len(merged_df.index)/len(task_df.index)*100,2)}%')
+                print(f'Result from added features: {merged_dataset_result}')
+        else:
+            print('There are no suitable features for this task at this time')
+
+        print('------------------------------------------------------------------------------------------')
 
     # Need to get the merge ratings and put in an array
     # At some point i will make a table on the profile page that allows the user to test features for their task and compare rating
@@ -223,7 +263,7 @@ def preprocess(descriptions):
     return processed_descriptions
 
 
-def preprocess_df(df):
+def preprocess_df_strings(df):
     string_columns = df.select_dtypes(include=['object']).columns
     df[string_columns] = df[string_columns].apply(lambda x: x.str.lower())
     return df
@@ -232,8 +272,8 @@ def preprocess_df(df):
 
 
 def get_matching_columns(df1, df2):
-    df1 = preprocess_df(df1)
-    df2 = preprocess_df(df2)
+    df1 = preprocess_df_strings(df1)
+    df2 = preprocess_df_strings(df2)
     cols1 = df1.columns
     cols2 = df2.columns
 
