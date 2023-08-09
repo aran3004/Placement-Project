@@ -131,7 +131,6 @@ def hist_grad_with_shapley(df, target):
                                 -np.sort(-np.abs(shap_values.values).mean(0)))),
                            columns=["feature", "importance"])
     print(shap_df)
-    shap_df.to_csv('shap_df.csv', sep=',')
 
     count = 0
     for i in range(len(shap_df)):
