@@ -1,7 +1,7 @@
-from flask import Blueprint, session, redirect, url_for, render_template
+from flask import Blueprint, session, redirect, url_for, render_template, flash
 from . import db
 from flask_login import current_user
-from .models import Datasets, Features
+from .models import Datasets, Features, User
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import spacy
@@ -111,18 +111,6 @@ def search():
 def match():
     task_feature_groups = datasets_and_feature_groups()
 
-    # Seeing datasets and the other features
-    # print(task_feature_groups)
-    # for task in task_feature_groups:
-    #     print("--------")
-    #     print(task)
-    #     print(task.dataset_name)
-    #     print(task.task)
-    #     for feature in task_feature_groups[task]:
-    #         print(
-    #             f"User ID:{feature.user_id} || {feature.feature_name} || {feature.id} || {feature.file_path} || {feature.info}")
-    #     print("--------")
-
     # Need to remove features that are not suitbale based on descritpion and info
     # Store these scores in an array and remove features from array if they are too low in similarity
 
@@ -172,6 +160,8 @@ def match():
         # Store the matched features in the dictionary
         matched_pairs[task] = matched_features
 
+    users_and_features = []
+
     # Print the matched pairs
     for task, matched_features in matched_pairs.items():
         print(f"Task: {task}")
@@ -195,7 +185,14 @@ def match():
                     0][0], list(matches.keys())[0][1]
                 print(
                     f'Matching Column 1 is: {column1}, Matching Column 2 is: {column2} ')
-                print(f'Columns in Feature: {feature_df.columns}')
+                features_list = feature_df.columns.values.tolist()
+                print(
+                    f'Columns in Feature: {features_list}')
+                for col in features_list:
+                    if col != column2:
+                        print(f'Added Feature Column Name:{col}')
+                        users_and_features.append((feature_obj.user_id, col))
+
                 print(f'Matching Rate: {list(matches.values())[0]}')
                 merged_df = pd.merge(merged_df, feature_df,
                                      left_on=column1, right_on=column2)
@@ -203,6 +200,7 @@ def match():
                     merged_df.drop(column2, inplace=True, axis=1)
             print('----------------------')
 
+        print(users_and_features)
         if task.model_type != 'regression':
             print("Models other than regression are still yet to be coded")
 
@@ -211,13 +209,51 @@ def match():
             print(merged_df.columns)
             if task.model_type == 'regression':
                 original_dataset_result = hist_grad(task_df, task.target)
-                print(
-                    f'Result from original task alone: {original_dataset_result}')
-                merged_dataset_result = hist_grad(merged_df, task.target)
+                merged_dataset_result, aggregated_shap = hist_grad_with_shapley(
+                    merged_df, task.target)
 
+            print(
+                f'Result from original task alone: {original_dataset_result}')
+            print(
+                f'Dataset Retained: {round(len(merged_df.index)/len(task_df.index)*100,2)}%')
+            print(f'Result from added features: {merged_dataset_result}')
+            if merged_dataset_result < original_dataset_result:
+                percentage_improvement = round(
+                    ((original_dataset_result - merged_dataset_result)/original_dataset_result)*100, 2)
                 print(
-                    f'Dataset Retained: {round(len(merged_df.index)/len(task_df.index)*100,2)}%')
-                print(f'Result from added features: {merged_dataset_result}')
+                    f'Percentage Improvement to Model: {percentage_improvement}%')
+                # lets assume for now that the public bid is for 5% improvement in model
+                print(task.public_bid)
+                to_pay = task.public_bid*percentage_improvement/5
+                print(f'Credit to be distributed: {to_pay}')
+
+            added_feature_importance = {}
+            for feature in users_and_features:
+                user = feature[0]
+                column_name = feature[1]
+                if column_name in aggregated_shap:
+                    if added_feature_importance.get(user) is not None:
+                        added_feature_importance[user] = added_feature_importance[user] + \
+                            aggregated_shap[column_name]
+                    else:
+                        added_feature_importance[user] = aggregated_shap[column_name]
+            print(added_feature_importance)
+            sum_of_feature_importance = sum(added_feature_importance.values())
+            payment_distibution = {}
+            for user in added_feature_importance:
+                payment_distibution[user] = (
+                    added_feature_importance[user]/sum_of_feature_importance) * to_pay
+            print(payment_distibution)
+            for payee in payment_distibution:
+                payee_object = User.query.get(payee)
+                payee_object.credit = int(payment_distibution[payee])
+                db.session.commit()
+                flash('Credit Paid', category='success')
+
+            # Take payment from user with task
+            current_user.credit = int(current_user.credit) - to_pay
+            db.session.commit()
+            flash('Credit Withdrawn', category='success')
         else:
             print('There are no suitable features for this task at this time')
 
