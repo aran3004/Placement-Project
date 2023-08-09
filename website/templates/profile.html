@@ -4,12 +4,31 @@
 
 {%block content%}
 <h1 align="center">Profile</h1>
-<ul id="datasets">
-    {%if user.datasets | length < 1 %}
-        <p>Hi {{user.first_name.capitalize()}}, you have no uploaded datasets</p>
-    {%endif%}
-    {%for dataset in user.datasets%}
-    <li>Dataset Name: {{dataset.dataset_name}}
+<h3 align="center">Credit: {{user.credit}}</h3>
+<div align="center" style="display: flex; justify-content: center;">
+    <form action="/add_credit" method="post">
+        <div style="padding: 5px;">
+            <input type="number" min="0" name="add_credit" id="add_credit" placeholder="Add Credit">
+        </div>
+        <button type="submit">Add Credit</button>
+    </form>
+    <form action="/withdraw_credit" method="post">
+        <div style="padding: 5px;">
+            <input type="number" min="0" name="withdraw_credit" id="withdraw_credit" placeholder="Withdraw Credit">
+        </div>
+        <button type="submit">Withdraw Credit</button>
+    </form>
+</div>
+<br>
+<hr>
+<div style="display: flex; justify-content: space-around;">
+    <div>
+        <h2>ML Tasks</h2>
+        {%if user.datasets | length < 1 %}
+            <p>Hi {{user.first_name.capitalize()}}, you have no uploaded datasets</p>
+        {%endif%}
+        {%for dataset in user.datasets%}
+        <li>Dataset Name: {{dataset.dataset_name}}
         <button type="button" class="close" onclick="deleteDataset({{dataset.id}})">
             <span>&times;</span>
         </button>
@@ -30,30 +49,54 @@
             {%endif%}
             <li>Date Uploaded: {{dataset.date}}</li>
         </ul>
-    </li>
-    <br>
-    {%endfor%}
-    {%if user.features | length < 1 %}
-        <p>Hi {{user.first_name.capitalize()}}, you have no uploaded features</p>
-    {%endif%}
-    {%for feature in user.features%}
-    <li>Feature Name: {{feature.feature_name}}
-        <button type="button" class="close" onclick="deleteFeature({{feature.id}})">
-            <span>&times;</span>
-        </button>
-        <button type="button" onclick="editDataset({{feature.id}})">
-            <span style="font-size:20px">&#9999;</span>
-        </button>
-        <ul>
-            <li>Info: {{feature.info}}</li>
-            <li>Filepath: {{feature.file_path}}</li>
-            <li>Tags: {{feature.tags}}</li>
-            <li>Date Uploaded: {{feature.date}}</li>
-        </ul>
-    </li>
-    <br>
-    {%endfor%}
-</ul>
+        </li>
+        <br>
+        {%endfor%}
+        <br>
+        <a href="{{url_for('uploads.upload_dataset')}}" align="center" appearance="button" 
+                style="color: white;
+                background-color: blue;
+                margin: 10px;
+                padding: 10px;
+                border-radius: 15px;
+                position: relative;
+                left: 50%;
+                text-decoration: none;">Upload Your Task</a>
 
-<button onclick="location.href='{{url_for('search_algo.search', _external=True)}}'" type="button">Click to Run Analysis</button>
+    </div>
+    <div>
+        <h2>Features</h2>
+        {%if user.features | length < 1 %}
+            <p>Hi {{user.first_name.capitalize()}}, you have no uploaded features</p>
+        {%endif%}
+        {%for feature in user.features%}
+        <li>Feature Name: {{feature.feature_name}}
+            <button type="button" class="close" onclick="deleteFeature({{feature.id}})">
+                <span>&times;</span>
+            </button>
+            <button type="button" onclick="editDataset({{feature.id}})">
+                <span style="font-size:20px">&#9999;</span>
+            </button>
+            <ul>
+                <li>Info: {{feature.info}}</li>
+                <li>Filepath: {{feature.file_path}}</li>
+                <li>Tags: {{feature.tags}}</li>
+                <li>Date Uploaded: {{feature.date}}</li>
+            </ul>
+        </li>
+        <br>
+        {%endfor%}
+        <br>
+        <a href="{{url_for('uploads.upload_feature')}}" align="center" appearance="button" 
+                style="color: white;
+                background-color: blue;
+                margin: 10px;
+                padding: 10px;
+                border-radius: 15px;
+                position: relative;
+                left: 50%;
+                text-decoration: none;">Upload Your Feature</a>
+    </div>
+</div>
+
 {%endblock%}

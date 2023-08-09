@@ -35,5 +35,6 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True)
     first_name = db.Column(db.String(150))
     password = db.Column(db.String(150))
+    credit = db.Column(db.String(150))
     datasets = db.relationship('Datasets')
     features = db.relationship('Features')
