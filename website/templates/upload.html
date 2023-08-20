@@ -4,13 +4,13 @@
 
 {%block content%}
 <br>
-<div>
-    <div align="center">
-        <a href="{{url_for('uploads.upload_dataset')}}">Upload Dataset</a>
+<div class="upload_page">
+    <div class="half_page">
+        <a class="upload_links"  href="{{url_for('uploads.upload_dataset')}}"><strong>Upload Dataset</strong></a>
     </div>
     <br>
-    <div align="center">
-        <a href="{{url_for('uploads.upload_feature')}}">Upload Feature</a>
+    <div class="half_page">
+        <a class="upload_links" href="{{url_for('uploads.upload_feature')}}"><strong>Upload Feature</strong></a>
     </div>
 </div>
 

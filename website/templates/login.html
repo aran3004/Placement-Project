@@ -3,19 +3,19 @@
 {%block title%}Login{%endblock%}
 
 {%block content%}
-<h1 align="center">Login Page</h1>
-<form method="post">
-    <div>
-        <div>
-            <label for="email">Email Address</label>
-            <input type="email" name="email" id="email" placeholder="Enter email">
+<div class="login_page">
+    <h1 class="centre_title">Login Page</h1>
+    <form class="login_form" method="post">
+        <div class="form_group">
+            <label class="form_label" for="email">Email Address</label>
+            <input class="form_input" type="email" name="email" id="email" placeholder="Enter email">
         </div>
-        <div>
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password" placeholder="Enter password">
+        <div class="form_group">
+            <label class="form_label" for="password">Password</label>
+            <input class="form_input" type="password" name="password" id="password" placeholder="Enter password">
         </div>
-    </div>
-    <br>
-    <button type="submit">Log In</button>
-</form>
+        <button class="link_button register form_button" type="submit">Sign In</button>
+    </form>
+</div>
+
 {%endblock%}
