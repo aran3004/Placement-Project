@@ -3,99 +3,88 @@
 {%block title%}Profile{%endblock%}
 
 {%block content%}
-<h1 align="center">Profile</h1>
-<h3 align="center">Credit: {{user.credit}}</h3>
-<div align="center" style="display: flex; justify-content: center;">
-    <form action="/add_credit" method="post">
-        <div style="padding: 5px;">
-            <input type="number" min="0" name="add_credit" id="add_credit" placeholder="Add Credit">
-        </div>
-        <button type="submit">Add Credit</button>
-    </form>
-    <form action="/withdraw_credit" method="post">
-        <div style="padding: 5px;">
-            <input type="number" min="0" name="withdraw_credit" id="withdraw_credit" placeholder="Withdraw Credit">
-        </div>
-        <button type="submit">Withdraw Credit</button>
-    </form>
+<div class="profile_page">
+    <h1 class="centre_title">Profile</h1>
+    <h3 class="centre_title">Credit: {{user.credit}}</h3>
+    <div class="credit_form">
+        <form class="credit_form_width" action="/add_credit" method="post">
+            <div class="credit_form_input">
+                <input class="form_input" type="number" min="0" name="add_credit" id="add_credit" placeholder="Add Credit">
+            </div>
+            <button class="link_button register form_button" type="submit">Add Credit</button>
+        </form>
+        <form class="credit_form_width" action="/withdraw_credit" method="post">
+            <div class="credit_form_input">
+                <input class="form_input" type="number" min="0" name="withdraw_credit" id="withdraw_credit" placeholder="Withdraw Credit">
+            </div>
+            <button class="link_button register form_button" type="submit">Withdraw Credit</button>
+        </form>
+    </div>
 </div>
-<br>
-<hr>
-<div style="display: flex; justify-content: space-around;">
-    <div>
-        <h2>ML Tasks</h2>
+
+<div class="uploaded">
+    <div class="uploaded_width">
+        <h2 class="uploaded_title">ML Tasks</h2>
         {%if user.datasets | length < 1 %}
-            <p>Hi {{user.first_name.capitalize()}}, you have no uploaded datasets</p>
+            <p class="uploaded_item_title uploaded_style">Hi {{user.first_name.capitalize()}}, you have no uploaded datasets</p>
         {%endif%}
         {%for dataset in user.datasets%}
-        <li>Dataset Name: {{dataset.dataset_name}}
-        <button type="button" class="close" onclick="deleteDataset({{dataset.id}})">
-            <span>&times;</span>
-        </button>
-        <button type="button" onclick="editDataset({{dataset.id}})">
-            <span style="font-size:20px">&#9999;</span>
-        </button>
-        <ul>
-            <li>Info: {{dataset.info}}</li>
-            <li>Filepath: {{dataset.file_path}}</li>
-            <li>Model Type: {{dataset.model_type.capitalize()}}</li>
-            <li>Target: {{dataset.target}}</li>
-            <li>Public Bid: {{dataset.public_bid}}</li>
-            <li>Tags: {{dataset.tags}}</li>
-            {% if dataset.model_type == 'classification'%}
-                <li>Accuracy: {{dataset.result}}</li>
-            {%elif dataset.model_type == 'regression'%}
-                <li>RMSE: {{dataset.result}}</li>
-            {%endif%}
-            <li>Date Uploaded: {{dataset.date}}</li>
-        </ul>
-        </li>
+        <div class="uploaded_style">
+            <div class="uploaded_buttons_right">
+                <button type="button" class="uploaded_delete_change_button" onclick="deleteDataset({{dataset.id}})">
+                    <span>&times;</span>
+                </button>
+                <button type="button" class="uploaded_delete_change_button" onclick="editDataset()">
+                    <span >&#9999;</span>
+                </button>
+            </div>
+            <li class="uploaded_item_title">{{dataset.dataset_name}}
+            <ul class="uploaded_item_content">
+                <li><strong>Info:</strong> {{dataset.task}}</li> 
+                <li><strong>Model Type:</strong> {{dataset.model_type.capitalize()}}</li>
+                <li><strong>Target:</strong> {{dataset.target}}</li>
+                <li><strong>Public Bid:</strong> {{dataset.public_bid}}</li>
+                {% if dataset.model_type == 'classification'%}
+                    <li><strong>Accuracy:</strong> {{"%.2f"|format(dataset.result)}}</li>
+                {%elif dataset.model_type == 'regression'%}
+                    <li><strong>RMSE:</strong> {{ "%.2f"|format(dataset.result)}}</li>
+                {%endif%}
+                <li><strong>Date Uploaded:</strong> {{dataset.date}}</li>
+            </ul>
+            </li>
+        </div>
         <br>
         {%endfor%}
         <br>
-        <a href="{{url_for('uploads.upload_dataset')}}" align="center" appearance="button" 
-                style="color: white;
-                background-color: blue;
-                margin: 10px;
-                padding: 10px;
-                border-radius: 15px;
-                position: relative;
-                left: 50%;
-                text-decoration: none;">Upload Your Task</a>
+        <a href="{{url_for('uploads.upload_dataset')}}" class="link_button register uploaded_button" >Upload Your Task</a>
 
     </div>
-    <div>
-        <h2>Features</h2>
+    <div class="uploaded_width">
+        <h2 class="uploaded_title">Features</h2>
         {%if user.features | length < 1 %}
-            <p>Hi {{user.first_name.capitalize()}}, you have no uploaded features</p>
+            <p class="uploaded_item_title uploaded_style">Hi {{user.first_name.capitalize()}}, you have no uploaded features</p>
         {%endif%}
         {%for feature in user.features%}
-        <li>Feature Name: {{feature.feature_name}}
-            <button type="button" class="close" onclick="deleteFeature({{feature.id}})">
-                <span>&times;</span>
-            </button>
-            <button type="button" onclick="editDataset({{feature.id}})">
-                <span style="font-size:20px">&#9999;</span>
-            </button>
-            <ul>
-                <li>Info: {{feature.info}}</li>
-                <li>Filepath: {{feature.file_path}}</li>
-                <li>Tags: {{feature.tags}}</li>
-                <li>Date Uploaded: {{feature.date}}</li>
-            </ul>
-        </li>
+        <div class="uploaded_style">
+            <div class="uploaded_buttons_right">
+                <button type="button" class="uploaded_delete_change_button" onclick="deleteFeature({{feature.id}})">
+                    <span>&times;</span>
+                </button>
+                <button type="button" class="uploaded_delete_change_button" onclick="editDataset({{feature.id}})">
+                    <span>&#9999;</span>
+                </button>
+            </div>
+            <li class="uploaded_item_title">{{feature.feature_name}}
+                <ul class="uploaded_item_content">
+                    <li><strong>Info:</strong> {{feature.info}}</li>
+                    <li><strong>Date Uploaded:</strong> {{feature.date}}</li>
+                </ul>
+            </li>
+        </div>
         <br>
         {%endfor%}
         <br>
-        <a href="{{url_for('uploads.upload_feature')}}" align="center" appearance="button" 
-                style="color: white;
-                background-color: blue;
-                margin: 10px;
-                padding: 10px;
-                border-radius: 15px;
-                position: relative;
-                left: 50%;
-                text-decoration: none;">Upload Your Feature</a>
+        <a href="{{url_for('uploads.upload_feature')}}" class="link_button register uploaded_button" >Upload Your Feature</a>
     </div>
 </div>
 

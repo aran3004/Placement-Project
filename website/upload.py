@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, render_template, request, redirect, url_for, session, jsonify
+from flask import Blueprint, flash, render_template, request, redirect, url_for, session, jsonify, make_response
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -39,7 +39,9 @@ def upload_dataset():
             file_path = os.path.join("datasets", new_filename)
             session['uploaded_data_file_path'] = file_path
 
-        return redirect(url_for('uploads.describe_dataset'))
+        # response = make_response(redirect(url_for('uploads.describe_dataset')))
+        # response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return make_response(redirect(url_for('uploads.describe_dataset')))
     return render_template('upload_dataset.html', user=current_user)
 
 
