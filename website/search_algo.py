@@ -1,7 +1,7 @@
 from flask import Blueprint, session, redirect, url_for, render_template, flash
 from . import db
 from flask_login import current_user
-from .models import Datasets, Features, User
+from .models import Datasets, Features, User, Log
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import spacy
@@ -212,10 +212,12 @@ def match():
                 merged_dataset_result, aggregated_shap = hist_grad_with_shapley(
                     merged_df, task.target)
 
+            retained_dataset = round(
+                len(merged_df.index)/len(task_df.index)*100, 2)
             print(
                 f'Result from original task alone: {original_dataset_result}')
             print(
-                f'Dataset Retained: {round(len(merged_df.index)/len(task_df.index)*100,2)}%')
+                f'Dataset Retained: {retained_dataset}%')
             print(f'Result from added features: {merged_dataset_result}')
             if merged_dataset_result < original_dataset_result:
                 percentage_improvement = round(
@@ -241,17 +243,29 @@ def match():
             sum_of_feature_importance = sum(added_feature_importance.values())
             payment_distibution = {}
             for user in added_feature_importance:
-                payment_distibution[user] = (
-                    added_feature_importance[user]/sum_of_feature_importance) * to_pay
+                if added_feature_importance[user] != 0:
+                    payment_distibution[user] = (
+                        added_feature_importance[user]/sum_of_feature_importance) * to_pay
             print(payment_distibution)
             for payee in payment_distibution:
                 payee_object = User.query.get(payee)
-                payee_object.credit = int(payment_distibution[payee])
+                payee_object.credit = payee_object.credit + \
+                    payment_distibution[payee]
+
+                log_description = f'Received <strong> {payment_distibution[payee]} credit </strong> for contributing to Task: <strong> {task.dataset_name} </strong>'
+                new_log = Log(description=log_description, user_id=payee)
+                db.session.add(new_log)
+
                 db.session.commit()
                 flash('Credit Paid', category='success')
 
             # Take payment from user with task
-            current_user.credit = int(current_user.credit) - to_pay
+            paying_user = task.user_id
+            paying_user = User.query.get(paying_user)
+            paying_user.credit = paying_user.credit - to_pay
+            log_description = f'Paid <strong> {to_pay} credit </strong> for adding {len(payment_distibution)} features to dataset: <strong>{task.dataset_name}</strong>. <br> Model improved from {original_dataset_result} to {merged_dataset_result}, which is equal to <strong> {percentage_improvement}% improvement</strong>. <br>Percentage of original dataset retained:<strong> {retained_dataset}%. </strong>'
+            new_log = Log(description=log_description, user_id=paying_user.id)
+            db.session.add(new_log)
             db.session.commit()
             flash('Credit Withdrawn', category='success')
         else:
@@ -261,7 +275,7 @@ def match():
 
     # Need to get the merge ratings and put in an array
     # At some point i will make a table on the profile page that allows the user to test features for their task and compare rating
-    return render_template('profile.html', user=current_user)
+    return render_template('home.html', user=current_user)
 
 # Preprocess descriptions (cleaning and tokenization)
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, flash, render_template, request, redirect, url_for
-from .models import User
+from .models import User, Log
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
@@ -60,6 +60,12 @@ def sign_up():
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
+            new_log = Log(description='Account Created!',
+                          user_id=current_user.id)
+            print(new_user.id)
+            db.session.add(new_log)
+            db.session.commit()
+
             flash("Account created", category='success')
             return redirect(url_for('email.registration_successful'))
     return render_template('sign_up.html', user=current_user)

@@ -38,3 +38,11 @@ class User(db.Model, UserMixin):
     credit = db.Column(db.Integer)
     datasets = db.relationship('Datasets')
     features = db.relationship('Features')
+    log = db.relationship('Log')
+
+
+class Log(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
+    description = db.Column(db.String(10000))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
