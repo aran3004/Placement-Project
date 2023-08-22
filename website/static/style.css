@@ -443,3 +443,18 @@ select{
 .form-spacing{
     margin-bottom: 20px;
 }
+
+.log-page{
+    padding-top: 100px;
+    background-color: #f2f2f2;
+}
+
+.log-style{
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+
+.log-entry{
+    width: 60%;
+}
