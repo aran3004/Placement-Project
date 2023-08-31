@@ -244,8 +244,8 @@ def match():
             payment_distibution = {}
             for user in added_feature_importance:
                 if added_feature_importance[user] != 0:
-                    payment_distibution[user] = (
-                        added_feature_importance[user]/sum_of_feature_importance) * to_pay
+                    payment_distibution[user] = round((
+                        added_feature_importance[user]/sum_of_feature_importance) * to_pay)
             print(payment_distibution)
             for payee in payment_distibution:
                 payee_object = User.query.get(payee)
@@ -262,7 +262,7 @@ def match():
             # Take payment from user with task
             paying_user = task.user_id
             paying_user = User.query.get(paying_user)
-            paying_user.credit = paying_user.credit - to_pay
+            paying_user.credit = paying_user.credit - round(to_pay)
             log_description = f'Paid <strong> {to_pay} credit </strong> for adding {len(payment_distibution)} features to dataset: <strong>{task.dataset_name}</strong>. <br> Model improved from {original_dataset_result} to {merged_dataset_result}, which is equal to <strong> {percentage_improvement}% improvement</strong>. <br>Percentage of original dataset retained:<strong> {retained_dataset}%. </strong>'
             new_log = Log(description=log_description, user_id=paying_user.id)
             db.session.add(new_log)

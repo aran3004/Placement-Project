@@ -6,26 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import HistGradientBoostingRegressor
-
-
-def aggregate_shap_values(shap_values, one_hot_columns, original_features):
-    # Create a dictionary to store aggregated SHAP values
-    aggregated_shap = {
-        original_feature: 0 for original_feature in original_features}
-
-    print(aggregated_shap)
-    # Iterate through one-hot encoded columns
-    for column in one_hot_columns:
-        # Extract the original feature name from the column name
-        # Assuming the structure is "code_E09000002"
-        original_feature = column.split('_')[0]
-        print(original_feature)
-        print(aggregated_shap[original_feature])
-
-        # Accumulate SHAP values for the original feature
-        aggregated_shap[original_feature] += shap_values[column].sum()
-
-    return aggregated_shap
+from sklearn.preprocessing import LabelEncoder
 
 
 def hist_grad(df, target):
@@ -49,11 +30,19 @@ def hist_grad(df, target):
     categorical_cols = [
         col for col in df_cleaned.columns if col not in numerical_cols and col != target]
 
-    # One-hot encode categorical features
-    X = pd.get_dummies(df_cleaned.drop(
-        [target] + numerical_cols, axis=1))
+    # Label encode categorical features
+    label_encoder = LabelEncoder()
+    df_cleaned[categorical_cols] = df_cleaned[categorical_cols].apply(
+        lambda col: label_encoder.fit_transform(col))
+
+    X = pd.DataFrame()
     X[numerical_cols] = df_cleaned[numerical_cols]  # Keep numerical columns
+    X[categorical_cols] = df_cleaned[categorical_cols]
     y = df_cleaned[target]
+    print(X.head())
+    print(X.columns)
+    print(y.head())
+
     # 100 instances for use as the background distribution
     X100 = shap.utils.sample(X, 100)
 
@@ -97,11 +86,19 @@ def hist_grad_with_shapley(df, target):
     categorical_cols = [
         col for col in df_cleaned.columns if col not in numerical_cols and col != target]
 
-    # One-hot encode categorical features
-    X = pd.get_dummies(df_cleaned.drop(
-        [target] + numerical_cols, axis=1))
+    # Label encode categorical features
+    label_encoder = LabelEncoder()
+    df_cleaned[categorical_cols] = df_cleaned[categorical_cols].apply(
+        lambda col: label_encoder.fit_transform(col))
+
+    X = pd.DataFrame()
     X[numerical_cols] = df_cleaned[numerical_cols]  # Keep numerical columns
+    X[categorical_cols] = df_cleaned[categorical_cols]
     y = df_cleaned[target]
+    print(X.head())
+    print(X.columns)
+    print(y.head())
+
     # 100 instances for use as the background distribution
     X100 = shap.utils.sample(X, 100)
 
