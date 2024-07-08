@@ -3,6 +3,8 @@ This project demonstartes a fully working data markets platform where clients ar
 
 The code is created primarily using the Flask framework to communicate between the frontend and backend operations.
 
+Video Demonstration: https://youtu.be/BsbsathCBSA
+
 # Project Structure:
 **datasets, features**: Contain all the csv files that are used for model creation and comparison, aswell as by the NLP algorithm. <br />
 **instance/database.db**: Initialise and stores the database that hold all user info for authentication and associated data and rewards. <br />
