@@ -3,55 +3,51 @@
 {%block title%}Upload Dataset{%endblock%}
 
 {%block content%}
-<h1 align="center">Describe your Dataset</h1>
-<p>Hi {{user.first_name}},</p>
-<br>
-<form method="post" enctype="multipart/form-data">
-    <div>
-        <p>File Name: {{filename}}</p>
-    </div>
-    <div>
-        {{data | safe}}
-    </div>
-    <br>
-    <div>
-        <label for="dataset_name">Dataset Name</label>
-        <input type="text" id="dataset_name" name="dataset_name" placeholder="Enter dataset name" required>
-    </div>
-    <br>
-    <div>
-        <label for="dataset_task">Describe the Task</label>
-        <textarea name="dataset_task" id="dataset_task" placeholder="Enter Your ML Task" required></textarea>
-    </div>
-    <br>
-    <br>
-    <div>
-        <label for="model_type">Model Type</label>
-        <select name="model_type" id="model_type">
-            <option value="regression">Regression</option>
-            <option value="classification">Classification</option>
-        </select>
-    </div>
-    <br>
-    <div>
-        <label for="target">Select a target:</label>
-        <select name="target" id="target">
-            {%for target in columns%}
-            <option value="{{target}}">{{target}}</option>
-            {%endfor%}  
-        </select>
-    </div>
-    <br>
-    <div>
-        <label for="public_bid">Public Bid</label>
-        <input type="number" name="public_bid" id="public_bid" placeholder="£" required>
-    </div>
-    <br>
-    <div>
-        <label for="tags">Tags</label>
-        <textarea name="tags" id="tags" placeholder="Enter tags for discoverability" required></textarea>
-    </div>
-    <br>
-    <button type="submit">Submit</button>
-</form>
+<div class="describe_page describe_page_dataset">
+    <h1 class="uploaded_title">Describe your Dataset</h1>
+    <form method="post" enctype="multipart/form-data" class="uploaded_style form_group form-spacing">
+        <div>
+            <p class="uploaded_title"><strong>File Name:</strong> {{filename}}</p>
+        </div>
+        <div class="table-styling">
+            {{data | safe}}
+        </div>
+
+        <div class="space-between form-spacing">
+            <label for="dataset_name"><strong>Dataset Name</strong></label>
+            <input type="text" id="dataset_name" name="dataset_name" placeholder="Enter dataset name" required class="form_input describe_input">
+        </div>
+
+        <div class="space-between form-spacing">
+            <label for="dataset_task"><strong>Describe the Task</strong></label>
+            <textarea name="dataset_task" id="dataset_task" placeholder="Enter Your ML Task" required class="form_input describe_input"></textarea>
+        </div>
+
+        <div class="space-between form-spacing">
+            <label for="model_type"><strong>Model Type</strong></label>
+            <select name="model_type" id="model_type" class="form_input select-input">
+                <option value="regression">Regression</option>
+                <option value="classification">Classification</option>
+            </select>
+        </div>
+
+        <div class="space-between form-spacing">
+            <label for="target"><strong>Select a target:</strong></label>
+            <select name="target" id="target" class="form_input select-input">
+                {%for target in columns%}
+                <option value="{{target}}">{{target}}</option>
+                {%endfor%}  
+            </select>
+        </div>
+
+        <div class="space-between form-spacing">
+            <label for="public_bid"><strong>Public Bid *</strong></label>
+            <input type="number" name="public_bid" id="public_bid" placeholder="Credit" required class="form_input describe_input">
+        </div>
+
+
+        <button type="submit" class="link_button register form_button form-spacing">Submit</button>
+        <caption>* How much are you willing to pay for 5% improvement in your model</caption>
+    </form>
+</div>
 {%endblock%}

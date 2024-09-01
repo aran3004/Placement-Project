@@ -3,32 +3,27 @@
 {%block title%}Upload Dataset{%endblock%}
 
 {%block content%}
-<h1 align="center">Describe your Feature</h1>
-<p>Hi {{user.first_name}},</p>
-<br>
-<form method="post" enctype="multipart/form-data">
-    <div>
-        <p>File Name: {{filename}}</p>
-    </div>
-    <div>
-        {{data | safe}}
-    </div>
-    <br>
-    <div>
-        <label for="feature_name">Feature Name</label>
-        <input type="text" id="feature_name" name="feature_name" placeholder="Enter feature name" required>
-    </div>
-    <br>
-    <div>
-        <label for="feature_info">Feature Info</label>
-        <textarea name="feature_info" id="feature_info" placeholder="Enter Feature Info" required></textarea>
-    </div>
-    <br>
-    <div>
-        <label for="tags">Tags</label>
-        <textarea name="tags" id="tags" placeholder="Enter tags for discoverability" required></textarea>
-    </div>
-    <br>
-    <button type="submit">Submit</button>
-</form>
+<div class="describe_page describe_page_feature">
+    <h1 class="uploaded_title">Describe your Feature</h1>
+    <form method="post" enctype="multipart/form-data" class="uploaded_style form_group form-spacing">
+        <div>
+            <p class="uploaded_title" ><strong>File Name:</strong> {{filename}}</p>
+        </div>
+        <div class="table-styling">
+            {{data | safe}}
+        </div>
+
+        <div class="space-between form-spacing">
+            <label for="feature_name"><strong>Feature Name</strong></label>
+            <input type="text" id="feature_name" name="feature_name" placeholder="Enter feature name" required class="form_input describe_input">
+        </div>
+
+        <div class="space-between form-spacing">
+            <label for="feature_info"><strong>Feature Info</strong></label>
+            <textarea name="feature_info" id="feature_info" placeholder="Enter Feature Info" required class="form_input describe_input"></textarea>
+        </div>
+
+        <button type="submit" class="link_button register form_button form-spacing">Submit</button>
+    </form>
+</div>
 {%endblock%}

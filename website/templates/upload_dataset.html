@@ -3,14 +3,19 @@
 {%block title%}Upload Dataset{%endblock%}
 
 {%block content%}
-<h1 align="center">Upload your Dataset</h1>
-<br>
-<form method="post" enctype="multipart/form-data">
-    <div align="center">
-        <label for="file">Upload Dataset:</label>
-        <input type="file" id="file" name="file">
+<div class="login_page">
+    <h1 class="center_title">Upload your Dataset</h1>
+    <div class="uploaded_style container-styling">
+        <form method="post" enctype="multipart/form-data">
+            <div class="center">
+                <label for="file" class="drop-container" id="dropcontainer">
+                    <span class="drop-title">Drop Dataset Here</span>
+                    or
+                    <input type="file" id="file" name="file" accept=".csv" required>
+                  </label>
+            </div>
+            <div><button class="link_button register form_button" type="submit">Continue</button></div>
+        </form>
     </div>
-    <br>
-    <div align="center"><button type="submit">Continue</button></div>
-</form>
+</div>
 {%endblock%}

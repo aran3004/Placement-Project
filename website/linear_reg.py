@@ -8,7 +8,9 @@ import numpy as np
 
 def linear_regression_model(dataframe, target):
     # Split the dataframe into features (X) and target variable (y)
-    X = dataframe.drop(target, axis=1)
+    # One-hot encode categorical features
+    dataframe = dataframe.dropna()
+    X = pd.get_dummies(dataframe.drop(target, axis=1))
     y = dataframe[target]
 
     # Split the data into training and testing sets
@@ -31,5 +33,5 @@ def linear_regression_model(dataframe, target):
 
     # Calculate the RMSE
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    
+
     return model, rmse

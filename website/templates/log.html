@@ -1,0 +1,17 @@
+{%extends 'base.html'%}
+
+{%block title%}Log{%endblock%}
+
+{%block content%}
+    <div class="log-page">
+        <h1 class="centre_title uploaded_title">Log</h1>
+        <div class="log-style">
+            {%for log in user.log%}
+            <div class="uploaded_style form_group log-entry">
+                <p><small><i>{{log.timestamp}}</i></small></p>
+                <p>{{log.description | safe}}</p>
+            </div>
+        {%endfor%}
+        </div>
+    </div>
+{%endblock%}

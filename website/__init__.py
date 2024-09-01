@@ -26,12 +26,14 @@ def create_app():
     from .upload import upload
     from .email import email
     from .search_algo import search_algo
+    from .credit import credit
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(upload, url_prefix='/')
     app.register_blueprint(email, url_prefix='/')
     app.register_blueprint(search_algo, url_prefix='/')
+    app.register_blueprint(credit, url_prefix='/')
 
     from .models import User, Datasets
 

@@ -3,27 +3,26 @@
 {%block title%}Sign Up{%endblock%}
 
 {%block content%}
-<h1 align="center">Sign-up Page</h1>
-<form method="post">
-    <div>
-        <div>
-            <label for="first_name">First Name</label>
-            <input type="text" name="first_name" id="first_name" placeholder="Enter First Name">
+<div class="login_page">
+    <h1 class="centre_title">Register</h1>
+    <form class="login_form" method="post">
+        <div class="form_group">
+            <label class="form_label" for="first_name">First Name</label>
+            <input class="form_input" type="text" name="first_name" id="first_name" placeholder="Enter First Name">
         </div>
-        <div>
-            <label for="email">Email Address</label>
-            <input type="email" name="email" id="email" placeholder="Enter email">
+        <div class="form_group">
+            <label class="form_label" for="email">Email Address</label>
+            <input class="form_input" type="email" name="email" id="email" placeholder="Enter email">
         </div>
-        <div>
-            <label for="password1">Password</label>
-            <input type="password" name="password1" id="password1" placeholder="Enter password">
+        <div class="form_group">
+            <label class="form_label" for="password1">Password</label>
+            <input class="form_input" type="password" name="password1" id="password1" placeholder="Enter password">
         </div>
-        <div>
-            <label for="password2">Confirm Password</label>
-            <input type="password" name="password2" id="password2" placeholder="Confirm password">
+        <div class="form_group">
+            <label class="form_label" for="password2">Confirm Password</label>
+            <input class="form_input" type="password" name="password2" id="password2" placeholder="Confirm password">
         </div>
-    </div>
-    <br>
-    <button type="submit">Sign Up</button>
-</form>
+        <button class="link_button register form_button" type="submit">Register</button>
+    </form>
+</div>
 {%endblock%}

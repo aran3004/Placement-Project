@@ -1,9 +1,9 @@
-from flask import Blueprint, flash, render_template, request, redirect, url_for, session, jsonify
+from flask import Blueprint, flash, render_template, request, redirect, url_for, session, jsonify, make_response
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
-from .models import Datasets, Features
+from .models import Datasets, Features, Log
 from . import db
 import json
 import pandas as pd
@@ -39,7 +39,9 @@ def upload_dataset():
             file_path = os.path.join("datasets", new_filename)
             session['uploaded_data_file_path'] = file_path
 
-        return redirect(url_for('uploads.describe_dataset'))
+        # response = make_response(redirect(url_for('uploads.describe_dataset')))
+        # response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return make_response(redirect(url_for('uploads.describe_dataset')))
     return render_template('upload_dataset.html', user=current_user)
 
 
@@ -66,6 +68,9 @@ def describe_dataset():
         new_dataset = Datasets(dataset_name=dataset_name, task=dataset_task,
                                target=target, public_bid=public_bid, tags=tags, user_id=current_user.id, model_type=model_type, file_path=session['uploaded_data_file_path'], result=result)
         db.session.add(new_dataset)
+        log_description = f'Uploaded Dataset: {dataset_name}'
+        new_log = Log(description=log_description, user_id=current_user.id)
+        db.session.add(new_log)
         db.session.commit()
         flash('Dataset uploaded', category='success')
         return redirect(url_for('email.upload_dataset_success_email'))
@@ -104,6 +109,9 @@ def describe_feature():
         new_feature = Features(feature_name=feature_name, info=feature_info, tags=tags,
                                user_id=current_user.id, file_path=session['uploaded_data_file_path'])
         db.session.add(new_feature)
+        log_description = f'Uploaded Feature: {feature_name}'
+        new_log = Log(description=log_description, user_id=current_user.id)
+        db.session.add(new_log)
         db.session.commit()
         flash('Feature uploaded', category='success')
         return redirect(url_for('email.upload_feature_success_email'))
@@ -118,6 +126,12 @@ def profile():
     return render_template('profile.html', user=current_user)
 
 
+@upload.route('/log')
+@login_required
+def log():
+    return render_template('log.html', user=current_user)
+
+
 @upload.route('/delete-dataset', methods=['POST'])
 def delete_dataset():
     dataset = json.loads(request.data)
@@ -127,6 +141,9 @@ def delete_dataset():
         if dataset.user_id == current_user.id:
             os.remove(dataset.file_path)
             db.session.delete(dataset)
+            log_description = f'Deleted Dataset: {dataset.dataset_name}'
+            new_log = Log(description=log_description, user_id=current_user.id)
+            db.session.add(new_log)
             db.session.commit()
 
 
@@ -139,6 +156,9 @@ def delete_featuret():
         if feature.user_id == current_user.id:
             os.remove(feature.file_path)
             db.session.delete(feature)
+            log_description = f'Deleted Feature: {feature.feature_name}'
+            new_log = Log(description=log_description, user_id=current_user.id)
+            db.session.add(new_log)
             db.session.commit()
 
     return jsonify({})

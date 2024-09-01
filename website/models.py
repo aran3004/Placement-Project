@@ -35,5 +35,14 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True)
     first_name = db.Column(db.String(150))
     password = db.Column(db.String(150))
+    credit = db.Column(db.Integer)
     datasets = db.relationship('Datasets')
     features = db.relationship('Features')
+    log = db.relationship('Log')
+
+
+class Log(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
+    description = db.Column(db.String(10000))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
