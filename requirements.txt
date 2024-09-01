@@ -10,4 +10,4 @@ shap==0.41.0
 spacy==3.5.4
 SQLAlchemy==2.0.17
 Werkzeug==2.2.3
-xgboost==1.7.6
+# xgboost==1.7.6
